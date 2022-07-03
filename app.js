@@ -122,6 +122,17 @@ app.get('/account', async function (req, res) {
   }
 })
 
+app.get('/products', async function (req, res) {
+  const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
+  const products = await stripe.products.list({
+    //limit: 3,
+    expand: ['data.default_price']
+  });
+
+  res.status(200).json({ products })
+})
+
 app.post('/login', async function (req, res) {
   const { email, firstName, lastName, password, number, company, creditCard } = req.body
   console.log('creditCard', creditCard)
@@ -349,7 +360,8 @@ app.post("/pdf", upload.single("file"), async function (req, res) {
   const url = req.protocol + '://' + req.get('host')
   const file = new Array({
     _id: new mongoose.Types.ObjectId(),
-    name: req.file.filename })
+    name: req.file.filename
+  })
   console.log(file)
   await userSchema.findOneAndUpdate({ _id: req.body.user }, { $push: { files: file } });
   res.send("File was added successfully");

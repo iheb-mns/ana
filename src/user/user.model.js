@@ -13,7 +13,7 @@ const userSchema = new Schema({
   plan: { type: String, enum: ['none', 'basic', 'pro'], default: 'none' },
   hasTrial: { type: Boolean, default: false },
   endDate: { type: Date, default: null },
-  creditCard: [{
+  creditCard: {
     firstName: String,
     lastName: String,
     email: String,
@@ -21,7 +21,7 @@ const userSchema = new Schema({
     verificationValue: Number,
     month: Number,
     year: Number,
-  }],
+  },
   files: [{
     name: String
   }]
