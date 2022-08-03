@@ -10,6 +10,7 @@ const setCurrentUser = require('./src/middleware/setCurrentUser')
 const hasPlan = require('./src/middleware/hasPlan')
 const multer = require('multer')
 const mongoose = require('mongoose')
+const nodeMailer = require('nodemailer')
 
 const userSchema = require("./src/user/user.model")
 
@@ -209,9 +210,7 @@ app.post('/login', async function (req, res) {
 app.post('/checkout', setCurrentUser, async (req, res) => {
   const customer = req.user
   const { product, customerID } = req.body
-
   const price = productToPriceMap[product]
-
   try {
     const session = await Stripe.createCheckoutSession(customerID, price)
 
@@ -365,6 +364,34 @@ app.post("/pdf", upload.single("file"), async function (req, res) {
   console.log(file)
   await userSchema.findOneAndUpdate({ _id: req.body.user }, { $push: { files: file } });
   res.send("File was added successfully");
+});
+
+// Mailer
+app.post('/send-email', function (req, res) {
+  let transporter = nodeMailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
+    auth: {
+      user: 'omarbardoura@gmail.com',
+      pass: 'fzmsumtlnwmwtybr'
+    }
+  });
+  let mailOptions = {
+    from: '"Omar Bardoura" <omarbardoura@gmail.com>', // sender address
+    to: req.body.to, // list of receivers
+    subject: req.body.subject, // Subject line
+    text: req.body.body, // plain text body
+    html: '<b>Test Email</b>' // html body
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      return console.log(error);
+    }
+    console.log('Message %s sent: %s', info.messageId, info.response);
+    res.render('index');
+  });
 });
 
 const port = process.env.PORT || 4242
